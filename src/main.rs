@@ -7,27 +7,27 @@
 // MIDI CC Message List: https://atherproducer.com/online-tools-for-musicians/midi-cc-list/
 // https://www.sustainable-music.org/demystifying-sfz-a-guide-to-understanding-the-sfz-format-for-sound-libraries/
 // https://github.com/sfz/tests/tree/master
-
-// SFZ files are sub-divided into headers.
-// The region header is the most essential, and is the
-// unit that instruments are comprised of.
-
-// A `group` is an optional organizational level containing
-// one or more regions
-
-// The gLobal header contains opcodes which apply to all
-// regions in the file.
-
-// The master header is an extra level between groups and regions.
-
-// The hierarchy can be:
-// global -> group -> region
-// global -> master -> group -> region
-
-// The control header should be at the beginning of the file.
-// The curve headers, are usually at the end of files.
+// https://sfzlab.github.io/sfz-website/
 
 // TODO: Dedupe EG/LFO variants to be defined once and reused.
+// TODO: Explore refinement types.
+// TODO: Implement parsing with nom.
+// TODO: Add Cakewalk specific codes.
+// TODO: Add v2 opcodes for
+    // Sample Playback
+    // Voice LifeCycle
+    // Midi Conditions
+    // Internal Conditions
+    // Triggers
+    // Amplifier
+    // EQ
+    // Filter
+    // Pitch
+    // LFO
+    // Curves
+    // Effects
+    // Loading
+    // Wavetable Oscillator
 
 #![allow(dead_code)]
 use std::collections::HashMap;
@@ -144,14 +144,14 @@ enum PerformanceParameter {
     SamplePlayer(SamplePlayerParameter),
     Pitch(PitchParameter),
     PitchEG(PitchEGParameter),
-    PitchLFO,
-    Filter,
-    FilterEG, 
-    FilterLFO,
-    Amplifier,
-    AmplifierEG,
-    AmplifierLFO,
-    Equalizer,
+    PitchLFO(PitchLFOParameter),
+    Filter(FilterParameter),
+    FilterEG(FilterEGParameter),
+    FilterLFO(FilterLFOParameter),
+    Amplifier(AmplifierParameter),
+    AmplifierEG(AmplifierEGParameter),
+    AmplifierLFO(AmplifierLFOParameter),
+    Equalizer(EqualizerParameter),
 }
 
 struct Global<T> {
@@ -204,8 +204,8 @@ enum EffectType {
 struct Effect {
     effect_type: EffectType,
     param_offset: u32,
-    effect_one: f32,   // Reverb
-    effect_two: f32,   // Chorus
+    effect_one: f32,   // Reverb in Cakewalk
+    effect_two: f32,   // Chorus in Cakewalk
     effect_three: f32, // Gain of regions send tracks into 3rd effect bus.
     effect_four: f32,  // Gain of regions send tracks into 4th effect bus.
     bus: BusOption,
@@ -275,22 +275,22 @@ enum PitchEGParameter {
     Vel2Depth(u32),
 }
 
-enum PitchLFO {
+enum PitchLFOParameter {
     Delay(f32),
     Fade(f32),
     Freq(f32),
     Depth(u16),
-    DepthCC(u16), // For DepthCCN
+    DepthCC(u16),
     DepthChanAft(u16),
     DepthPolyAft(u16),
-    FreqCC(u8), // For FreqCCN
+    FreqCC(u8),
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-enum Filter {
+enum FilterParameter {
     FilType(String),
     Cutoff(f32),
-    CutoffCC(u16), // For CutoffCCN
+    CutoffCC(u16),
     CutoffChanAft(u16),
     CutoffPolyAft(u16),
     Resonance(f32),
@@ -300,8 +300,7 @@ enum Filter {
     Random(u16),
 }
 
-
-enum FilterEG {
+enum FilterEGParameter {
     Delay(f32),
     Start(f32),
     Attack(f32),
@@ -318,120 +317,114 @@ enum FilterEG {
     Vel2Release(f32),
     Vel2Depth(u16),
 }
-enum FilterLFO {
+enum FilterLFOParameter {
     Delay(f32),
     Fade(f32),
     Freq(f32),
     Depth(u16),
-    DepthCC(u16), // For DepthCCN
+    DepthCC(u16),
     DepthChanAft(u16),
     DepthPolyAft(u16),
-    FreqCC(u8), // For FreqCCN
+    FreqCC(u8),
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
 
-
-enum Amplifier {
-    Volume,
-    Pan,
-    Width,
-    Position,
-    KeyTrack,
-    KeyCenter,
-    VelTrack,
-    AmpVelCurve(u8), // For VelCurveN
-    Random,
-    RtDecay,
-    Output,
-    GainCC(u8), // For GainCCN
-    CfInLowKey,
-    CfInHighKey,
-    CfOutLowKey,
-    CfOutHighKey,
-    CfKeyCurve,
-    CfInLowVel,
-    CfInHighVel,
-    CfOutLowVel,
-    CfOutHighVel,
-    CfVelCurve,
-    CfInLowCC(u8), // For CrossfadeInCCN
-    CfInHighCC(u8), // For CrossfadeInCCN
-    CfOutLowCC(u8), // For CrossfadeOutCCN
-    CfOutHighCC(u8), // For CrossfadeOutCCN
-    CfCCCurve,
+enum AmplifierParameter {
+    Volume(f32),
+    Pan(f32),
+    Width(f32),
+    Position(f32),
+    KeyTrack(f32),
+    KeyCenter(u8),
+    VelTrack(f32),
+    AmpVelCurve(f32),
+    Random(f32),
+    RtDecay(f32),
+    Output(u16),
+    GainCC(f32),
+    CfInLowKey(u8),
+    CfInHighKey(u8),
+    CfOutLowKey(u8),
+    CfOutHighKey(u8),
+    CfKeyCurve(String), // gain or power
+    CfInLowVel(f32),
+    CfInHighVel(f32),
+    CfOutLowVel(f32),
+    CfOutHighVel(f32),
+    CfVelCurve(String), // gain or power
+    CfInLowCC(u8),
+    CfInHighCC(u8),
+    CfOutLowCC(u8),
+    CfOutHighCC(u8),
+    CfCCCurve(String),
 }
 
-
-enum AmplifierEG {
-    Delay,
-    Start,
-    Attack,
-    Hold,
-    Decay,
-    Sustain,
-    Release,
-    Vel2Delay,
-    Vel2Attack,
-    Vel2Hold,
-    Vel2Decay,
-    Vel2Sustain,
+enum AmplifierEGParameter {
+    Delay(f32),
+    Start(f32),
+    Attack(f32),
+    Hold(f32),
+    Decay(f32),
+    Sustain(f32),
+    Release(f32),
+    Vel2Delay(f32),
+    Vel2Attack(f32),
+    Vel2Hold(f32),
+    Vel2Decay(f32),
+    Vel2Sustain(f32),
     Vel2Release,
-    DelayCC(u8), // For DelayCCN
-    StartCC(u8), // For StartCCN
-    AttackCC(u8), // For AttackCCN
-    HoldCC(u8), // For HoldCCN
-    DecayCC(u8), // For DecayCCN
-    SustainCC(u8), // For SustainCCN
-    ReleaseCC(u8), // For ReleaseCCN
+    DelayCC(f32),
+    StartCC(f32),
+    AttackCC(f32),
+    HoldCC(f32),
+    DecayCC(f32),
+    SustainCC(f32),
+    ReleaseCC(f32),
 }
 
-
-enum AmplifierLFO {
-    Delay,
-    Fade,
-    Freq,
-    Depth,
-    DepthCC(u8), // For DepthCCN
-    DepthChanAft,
-    DepthPolyAft,
-    FreqCC(u8), // For FreqCCN
-    FreqChanAft,
-    FreqPolyAft,
+enum AmplifierLFOParameter {
+    Delay(f32),
+    Fade(f32),
+    Freq(f32),
+    Depth(u16),
+    DepthCC(u16),
+    DepthChanAft(u16),
+    DepthPolyAft(u16),
+    FreqCC(u8),
+    FreqChanAft(f32),
+    FreqPolyAft(f32),
 }
 
-
-enum Equalizer {
-    Eq1Freq,
-    Eq2Freq,
-    Eq3Freq,
-    Eq1FreqCC(u8), // For Eq1FreqCCN
-    Eq2FreqCC(u8), // For Eq2FreqCCN
-    Eq3FreqCC(u8), // For Eq3FreqCCN
-    Eq1Vel2Freq,
-    Eq2Vel2Freq,
-    Eq3Vel2Freq,
-    Eq1Bandwidth,
-    Eq2Bandwidth,
-    Eq3Bandwidth,
-    Eq1BandwidthCC(u8), // For Eq1BandwidthCCN
-    Eq2BandwidthCC(u8), // For Eq2BandwidthCCN
-    Eq3BandwidthCC(u8), // For Eq3BandwidthCCN
-    Eq1Gain,
-    Eq2Gain,
-    Eq3Gain,
-    Eq1GainCC(u8), // For Eq1GainCCN
-    Eq2GainCC(u8), // For Eq2GainCCN
-    Eq3GainCC(u8), // For Eq3GainCCN
-    Eq1Vel2Gain,
-    Eq2Vel2Gain,
-    Eq3Vel2Gain,
+enum EqualizerParameter {
+    Eq1Freq(f32),
+    Eq2Freq(f32),
+    Eq3Freq(f32),
+    Eq1FreqCC(f32),
+    Eq2FreqCC(f32),
+    Eq3FreqCC(f32),
+    Eq1Vel2Freq(f32),
+    Eq2Vel2Freq(f32),
+    Eq3Vel2Freq(f32),
+    Eq1Bandwidth(f32),
+    Eq2Bandwidth(f32),
+    Eq3Bandwidth(f32),
+    Eq1BandwidthCC(f32),
+    Eq2BandwidthCC(f32),
+    Eq3BandwidthCC(f32),
+    Eq1Gain(f32),
+    Eq2Gain(f32),
+    Eq3Gain(f32),
+    Eq1GainCC(f32),
+    Eq2GainCC(f32),
+    Eq3GainCC(f32),
+    Eq1Vel2Gain(f32),
+    Eq2Vel2Gain(f32),
+    Eq3Vel2Gain(f32),
 }
-
-
 
 struct Sample {
-    name: String,
+    name: PathBuf,
     data: Vec<u8>,
 }
 
@@ -440,15 +433,22 @@ struct Master<T> {
     groups: Option<Vec<Group<T>>>,
 }
 
-struct Sfz {
-    region: Region,
+struct SfzInstrument<T> {
+    global: Vec<Global<T>>,
+    control: Control,
+    group: Vec<Group<T>>,
+    master: Option<Vec<Master<T>>>,
+    region: Vec<Region>,
+    effect: Effect,
+
+
 }
 
 enum HeaderType {
     Region,
     Group,
     Control,
-    GLobal,
+    Global,
     Curve,
     Effect,
     Master,
