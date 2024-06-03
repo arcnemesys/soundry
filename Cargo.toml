@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 refinement = "0.5.0"
+serde = { version = "1.0.203", features = ["derive"] }

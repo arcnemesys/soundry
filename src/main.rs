@@ -1,3 +1,4 @@
+// Thanks to Anders Danhielson
 // Reference Material
 // http://drealm.info/sfz/plj-sfz.xhtml
 // https://sfzformat.com/headers/
@@ -8,36 +9,46 @@
 // https://www.sustainable-music.org/demystifying-sfz-a-guide-to-understanding-the-sfz-format-for-sound-libraries/
 // https://github.com/sfz/tests/tree/master
 // https://sfzlab.github.io/sfz-website/
+// https://edrums.github.io/en/linuxsampler/sfz/#Effects
 
 // TODO: Dedupe EG/LFO variants to be defined once and reused.
 // TODO: Explore refinement types.
 // TODO: Implement parsing with nom.
 // TODO: Add Cakewalk specific codes.
 // TODO: Add v2 opcodes for
-    // Sample Playback
-    // Voice LifeCycle
-    // Midi Conditions
-    // Internal Conditions
-    // Triggers
-    // Amplifier
-    // EQ
-    // Filter
-    // Pitch
-    // LFO
-    // Curves
-    // Effects
-    // Loading
-    // Wavetable Oscillator
+// Sample Playback
+// Voice LifeCycle
+// Midi Conditions
+// Internal Conditions
+// Triggers
+// Amplifier
+// EQ
+// Filter
+// Pitch
+// LFO
+// Curves
+// Effects
+// Loading
+// Wavetable Oscillator
 
 #![allow(dead_code)]
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Display
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Control {
     /// Defines the SFZ header type of this struct.
     header_type: HeaderType,
     /// Contains the `#define` directives (variables) for the SFZ  control header.
-    define_directives: HashMap<String, u32>,
+    directives: HashMap<String, u32>,
     /// Path to samples, should be relative for Cakewalk,
     /// but can be relative or absolute for ARIA, Bassmidi and sfizz.
     /// The value of `default_path` is reset by a new control header,
@@ -57,33 +68,55 @@ struct Control {
 }
 
 impl Control {
-    fn new(
-        define_directives: HashMap<String, u32>,
-        default_path: PathBuf,
-        note_offset: u8,
-        octave_offset: u8,
-        label_ccn: Vec<(u32, String)>,
-        set_ccn: Vec<(u32, String)>,
-    ) -> Self {
+    fn new() -> Self {
         Self {
             header_type: HeaderType::Control,
-            define_directives,
-            default_path,
-            note_offset,
-            octave_offset,
-            label_ccn,
-            set_ccn,
+            directives: HashMap::new(),
+            default_path: PathBuf::new(),
+            note_offset: 0,
+            octave_offset: 0,
+            label_ccn: vec![],
+            set_ccn: vec![],
         }
     }
 }
 
+impl Default for Control {
+    fn default() -> Self {
+       Self {
+        header_type: HeaderType::Control,
+        directives: HashMap::new(),
+        default_path: PathBuf::new(),
+        note_offset: 0,
+        octave_offset: 0,
+        label_ccn: vec![],
+        set_ccn: vec![],
+        }
+    }
+}
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Display
+// Default
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Group<T> {
     /// The regions to which the common parameters will be applied.
     regions: Vec<Region>,
     /// The common parameters for the regions associated with the group.
     common_params: HashMap<String, T>,
 }
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Display
+// Default
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Region {
     /// Defines the Sfz header type of this struct.
     header_type: HeaderType,
@@ -91,13 +124,14 @@ struct Region {
     sample: PathBuf,
     /// Defines when the sample in a region will play.
     input_controls: Vec<InputControl>,
-    perf_params: Vec<String>,
+    perf_params: Vec<PerformanceParameter>,
 }
 
 // These seem to map on to the SFZ opcode categories:
 // Key Mapping
 // Midi Conditions
 // Internal Conditions
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum InputControl {
     LoChan(u8),
     HiChan(u8),
@@ -140,6 +174,7 @@ enum InputControl {
 // Amplifier
 // Filter
 // EQ
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum PerformanceParameter {
     SamplePlayer(SamplePlayerParameter),
     Pitch(PitchParameter),
@@ -153,16 +188,36 @@ enum PerformanceParameter {
     AmplifierLFO(AmplifierLFOParameter),
     Equalizer(EqualizerParameter),
 }
-
+// Copy
+// Clone
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Debug
+// Display
+// Default
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Global<T> {
     common_params: HashMap<String, T>,
 }
-
+// Copy
+// Clone
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Debug
+// Display
+// Default
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Curve<T> {
     index: u32,
     values: Vec<(String, T)>,
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum AriaEffect {
     Limiter,
     Overdrive,
@@ -179,7 +234,7 @@ enum AriaEffect {
     SubSynth,
     RezFilter,
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum SfzEffect {
     Apan,
     Comp,
@@ -197,10 +252,25 @@ enum SfzEffect {
     Strings,
     Tdfir,
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum EffectType {
+    // These variants are going to have to be
+    // refactored as this is a confusing naming.
     AriaEffects(AriaEffect),
     SfzEffects(SfzEffect),
 }
+
+// Copy
+// Clone
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Debug
+// Display
+// Default
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Effect {
     effect_type: EffectType,
     param_offset: u32,
@@ -211,7 +281,7 @@ struct Effect {
     bus: BusOption,
     dsp_order: u8,
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum BusOption {
     Main,
     Aux1,
@@ -228,7 +298,7 @@ enum BusOption {
     Fx4,
     Midi,
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum SamplePlayerParameter {
     Delay(f32),
     DelayRandom(f32),
@@ -244,7 +314,7 @@ enum SamplePlayerParameter {
     SyncBeats(f32),
     SyncOffset(f32),
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum PitchParameter {
     Transpose(u8),
     Tune(u8),
@@ -256,7 +326,7 @@ enum PitchParameter {
     BendDown(u16),
     BendStep(u16),
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum PitchEGParameter {
     Delay(f32),
     Start(f32),
@@ -274,6 +344,7 @@ enum PitchEGParameter {
     Vel2Release(f32),
     Vel2Depth(u32),
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 
 enum PitchLFOParameter {
     Delay(f32),
@@ -287,6 +358,7 @@ enum PitchLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum FilterParameter {
     FilType(String),
     Cutoff(f32),
@@ -299,6 +371,7 @@ enum FilterParameter {
     VelTrack(u16),
     Random(u16),
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 
 enum FilterEGParameter {
     Delay(f32),
@@ -317,6 +390,7 @@ enum FilterEGParameter {
     Vel2Release(f32),
     Vel2Depth(u16),
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum FilterLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -329,7 +403,7 @@ enum FilterLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum AmplifierParameter {
     Volume(f32),
     Pan(f32),
@@ -359,7 +433,7 @@ enum AmplifierParameter {
     CfOutHighCC(u8),
     CfCCCurve(String),
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum AmplifierEGParameter {
     Delay(f32),
     Start(f32),
@@ -382,7 +456,7 @@ enum AmplifierEGParameter {
     SustainCC(f32),
     ReleaseCC(f32),
 }
-
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum AmplifierLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -395,6 +469,7 @@ enum AmplifierLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
 
 enum EqualizerParameter {
     Eq1Freq(f32),
@@ -422,28 +497,55 @@ enum EqualizerParameter {
     Eq2Vel2Gain(f32),
     Eq3Vel2Gain(f32),
 }
-
+// Copy
+// Clone
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Debug
+// Display
+// Default
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Sample {
     name: PathBuf,
     data: Vec<u8>,
 }
+// Copy
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Display
+// Default
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Master<T> {
     op_codes: Vec<(String, T)>,
     groups: Option<Vec<Group<T>>>,
 }
+// Copy
+// Eq
+// PartialEq
+// Ord
+// PartialOrd
+// Hash
+// Display
+// Default
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct SfzInstrument<T> {
     global: Vec<Global<T>>,
-    control: Control,
+    control: Vec<Control>,
     group: Vec<Group<T>>,
     master: Option<Vec<Master<T>>>,
     region: Vec<Region>,
-    effect: Effect,
-
-
+    effect: Vec<Effect>,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum HeaderType {
     Region,
     Group,
