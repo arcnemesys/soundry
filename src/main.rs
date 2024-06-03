@@ -33,9 +33,10 @@
 
 #![allow(dead_code)]
 use serde::{Deserialize, Serialize};
+use std::boxed::Box;
 use std::collections::HashMap;
+use std::error::Error;
 use std::path::PathBuf;
-
 mod parser;
 // Eq
 // PartialEq
@@ -84,14 +85,14 @@ impl Control {
 
 impl Default for Control {
     fn default() -> Self {
-       Self {
-        header_type: HeaderType::Control,
-        directives: HashMap::new(),
-        default_path: PathBuf::new(),
-        note_offset: 0,
-        octave_offset: 0,
-        label_ccn: vec![],
-        set_ccn: vec![],
+        Self {
+            header_type: HeaderType::Control,
+            directives: HashMap::new(),
+            default_path: PathBuf::new(),
+            note_offset: 0,
+            octave_offset: 0,
+            label_ccn: vec![],
+            set_ccn: vec![],
         }
     }
 }
@@ -559,16 +560,48 @@ enum HeaderType {
     Sample,
 }
 
-use nom::{IResult, bytes::complete::tag};
+use nom::{
+    branch::alt, character::complete::newline, bytes::complete::{is_a, is_not, tag}, sequence::separated_pair, IResult
+};
+
 // The first object we want to look for is a control header, which is
 // `<`[a-z]`>`, and our nom tag will be `<control>`.
 
-// Once we encounter that, we want to look for `default_path=`.
+// Once we encounter that, we want to look for a newline, `\n`, then`default_path=`.
 
-fn control_parser(sfz_source: &str) -> IResult<&str, &str> {
+fn control_header_parser(sfz_source: &str) -> IResult<&str, &str> {
     tag("<control>")(sfz_source)
 }
 
-fn main() {
-    println!("HelLo, world!");
+fn default_path(sfz_source: &str) -> IResult<&str, (&str, &str)> {
+    separated_pair(
+        tag("default_path"),
+               tag("="),
+               till_newline,
+
+    )(sfz_source) 
+}
+
+
+fn till_newline(sfz_source: &str) -> IResult<&str, &str> {
+    take_till(|c| c == '\n')(sfz_source)
+}
+
+fn parse_sfz(sfz_source: &str) -> IResult<&str, &str> {
+    alt((
+        control_header_parser,
+        default_path,
+    ))(sfz_source)
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let (remainder, input) = parse_sfz("<control>
+    default_path =samples/
+    <global>
+    <group>key=33
+    <region> sample=A1.wv")?;
+
+    println!("{}", remainder);
+
+    Ok(())
 }
