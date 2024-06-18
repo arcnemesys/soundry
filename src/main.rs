@@ -37,7 +37,10 @@ use std::boxed::Box;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::PathBuf;
+use crate::region::{parse_sfz, Region, parse_region,  parse_value, parse_key_value, parse_identifier};
 mod parser;
+mod region;
+mod refinements;
 // Eq
 // PartialEq
 // Ord
@@ -45,7 +48,7 @@ mod parser;
 // Hash
 // Display
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Control {
     /// Defines the SFZ header type of this struct.
     header_type: HeaderType,
@@ -103,7 +106,7 @@ impl Default for Control {
 // Hash
 // Display
 // Default
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 struct Group<T> {
     /// The regions to which the common parameters will be applied.
     regions: Vec<Region>,
@@ -118,22 +121,22 @@ struct Group<T> {
 // Display
 // Default
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-struct Region {
-    /// Defines the Sfz header type of this struct.
-    header_type: HeaderType,
-    /// The sample to be played for this specific region.
-    sample: PathBuf,
-    /// Defines when the sample in a region will play.
-    input_controls: Vec<InputControl>,
-    perf_params: Vec<PerformanceParameter>,
-}
+// #[derive(Clone, Debug, )]
+// struct Region {
+//     /// Defines the Sfz header type of this struct.
+//     header_type: HeaderType,
+//     /// The sample to be played for this specific region.
+//     sample: PathBuf,
+//     /// Defines when the sample in a region will play.
+//     input_controls: Vec<InputControl>,
+//     perf_params: Vec<PerformanceParameter>,
+// }
 
 // These seem to map on to the SFZ opcode categories:
 // Key Mapping
 // Midi Conditions
 // Internal Conditions
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum InputControl {
     LoChan(u8),
     HiChan(u8),
@@ -171,12 +174,20 @@ enum InputControl {
     OnHiCC(u8),
 }
 
+// pub fn match_input_control<T>(input_control: (&str, T)) -> InputControl {
+//     match input_control {
+//         ("lovel", val) => {
+
+//         }
+//     }
+// }
+
 // Performance parameters are all sound modifiers including:
 // Pitch
 // Amplifier
 // Filter
 // EQ
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum PerformanceParameter {
     SamplePlayer(SamplePlayerParameter),
     Pitch(PitchParameter),
@@ -200,7 +211,7 @@ enum PerformanceParameter {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Global<T> {
     common_params: HashMap<String, T>,
 }
@@ -214,12 +225,12 @@ struct Global<T> {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Curve<T> {
     index: u32,
     values: Vec<(String, T)>,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum AriaEffect {
     Limiter,
     Overdrive,
@@ -236,7 +247,7 @@ enum AriaEffect {
     SubSynth,
     RezFilter,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum SfzEffect {
     Apan,
     Comp,
@@ -254,7 +265,7 @@ enum SfzEffect {
     Strings,
     Tdfir,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum EffectType {
     // These variants are going to have to be
     // refactored as this is a confusing naming.
@@ -272,7 +283,7 @@ enum EffectType {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Effect {
     effect_type: EffectType,
     param_offset: u32,
@@ -283,7 +294,7 @@ struct Effect {
     bus: BusOption,
     dsp_order: u8,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum BusOption {
     Main,
     Aux1,
@@ -300,7 +311,7 @@ enum BusOption {
     Fx4,
     Midi,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum SamplePlayerParameter {
     Delay(f32),
     DelayRandom(f32),
@@ -316,7 +327,7 @@ enum SamplePlayerParameter {
     SyncBeats(f32),
     SyncOffset(f32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum PitchParameter {
     Transpose(u8),
     Tune(u8),
@@ -328,7 +339,7 @@ enum PitchParameter {
     BendDown(u16),
     BendStep(u16),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum PitchEGParameter {
     Delay(f32),
     Start(f32),
@@ -346,7 +357,7 @@ enum PitchEGParameter {
     Vel2Release(f32),
     Vel2Depth(u32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 
 enum PitchLFOParameter {
     Delay(f32),
@@ -360,7 +371,7 @@ enum PitchLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum FilterParameter {
     FilType(String),
     Cutoff(f32),
@@ -373,7 +384,7 @@ enum FilterParameter {
     VelTrack(u16),
     Random(u16),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 
 enum FilterEGParameter {
     Delay(f32),
@@ -392,7 +403,7 @@ enum FilterEGParameter {
     Vel2Release(f32),
     Vel2Depth(u16),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum FilterLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -405,7 +416,7 @@ enum FilterLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum AmplifierParameter {
     Volume(f32),
     Pan(f32),
@@ -435,7 +446,7 @@ enum AmplifierParameter {
     CfOutHighCC(u8),
     CfCCCurve(String),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum AmplifierEGParameter {
     Delay(f32),
     Start(f32),
@@ -458,7 +469,7 @@ enum AmplifierEGParameter {
     SustainCC(f32),
     ReleaseCC(f32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum AmplifierLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -471,7 +482,7 @@ enum AmplifierLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 
 enum EqualizerParameter {
     Eq1Freq(f32),
@@ -509,7 +520,7 @@ enum EqualizerParameter {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Sample {
     name: PathBuf,
     data: Vec<u8>,
@@ -523,7 +534,7 @@ struct Sample {
 // Display
 // Default
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct Master<T> {
     op_codes: Vec<(String, T)>,
     groups: Option<Vec<Group<T>>>,
@@ -537,7 +548,7 @@ struct Master<T> {
 // Display
 // Default
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 struct SfzInstrument<T> {
     global: Vec<Global<T>>,
     control: Vec<Control>,
@@ -547,7 +558,7 @@ struct SfzInstrument<T> {
     effect: Vec<Effect>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, )]
 enum HeaderType {
     Region,
     Group,
@@ -561,7 +572,14 @@ enum HeaderType {
 }
 
 use nom::{
-    branch::alt, character::complete::newline, bytes::complete::{is_a, is_not, tag}, sequence::separated_pair, IResult
+    branch::alt,
+    bytes::complete::{is_a, is_not, tag, take_until},
+    character::complete::multispace0,
+    character::complete::newline,
+    error::ParseError,
+    sequence::delimited,
+    sequence::separated_pair,
+    IResult, Parser,
 };
 
 // The first object we want to look for is a control header, which is
@@ -573,35 +591,62 @@ fn control_header_parser(sfz_source: &str) -> IResult<&str, &str> {
     tag("<control>")(sfz_source)
 }
 
-fn default_path(sfz_source: &str) -> IResult<&str, (&str, &str)> {
-    separated_pair(
-        tag("default_path"),
-               tag("="),
-               till_newline,
+fn define_directive(sfz_source: &str) -> IResult<&str, &str> {
+    tag("#define")(sfz_source)
+}
 
-    )(sfz_source) 
+fn default_path(sfz_source: &str) -> IResult<&str, &str> {
+    take_until("default_path=")(sfz_source)
 }
 
 
-fn till_newline(sfz_source: &str) -> IResult<&str, &str> {
-    take_till(|c| c == '\n')(sfz_source)
+fn default_path_parser(sfz_source: &str) -> IResult<&str, &str> {
+    tag("default_path=")(sfz_source)
 }
 
-fn parse_sfz(sfz_source: &str) -> IResult<&str, &str> {
-    alt((
-        control_header_parser,
-        default_path,
-    ))(sfz_source)
+fn global_header_parser(sfz_source: &str) -> IResult<&str, &str> {
+    tag("<global>")(sfz_source)
 }
-
+fn until_newline(sfz_source: &str) -> IResult<&str, &str> {
+    take_until("\n")(sfz_source)
+}
 fn main() -> Result<(), Box<dyn Error>> {
-    let (remainder, input) = parse_sfz("<control>
-    default_path =samples/
-    <global>
-    <group>key=33
-    <region> sample=A1.wv")?;
+    // let sfz_file = "<control>
+    // default_path=samples/
+    // <global>";
+    // let (remaining, output) = control_header_parser(sfz_file)?;
 
-    println!("{}", remainder);
+    // assert_eq!(output, "<control>");
+    // assert_eq!(remaining, "\n    default_path=samples/\n    <global>");
 
+    // let (remaining_next, output) = default_path(remaining)?;
+
+    // let (remaining_next, output) = default_path_parser(remaining_next)?;
+
+    // assert_eq!(output, "default_path=");
+    // assert_eq!(remaining_next, "samples/\n    <global>");
+
+    // let (remaining_next, output) = until_newline(remaining_next)?;
+
+    // println!("{}", remaining_next);
+
+    let sfz_content = r#"<region>
+    sample=kick.wav
+    pitch_keycenter=60
+    lovel=0
+    hivel=127
+    "#;
+
+    let (remaining, output) = parse_region(sfz_content)?;
+    // let (remaining, output) = parse_value(remaining)?;
+    // let (remaining, output) = parse_key_value(remaining)?;
+
+    println!("Remaining: {remaining}, Output: {:?}", output);
+    
+
+    // match parse_sfz(sfz_content) {
+    //     Ok((_, sfz_file)) => println!("{:#?}", sfz_file),
+    //     Err(err) => eprintln!("Failed to parse SFZ file: {:?}", err),
+    // }
     Ok(())
 }
