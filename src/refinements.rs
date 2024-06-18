@@ -2,9 +2,9 @@ use refinement::{Predicate, Refinement};
 
 struct ZeroToSixteen;
 type RangeZeroToSixteen = Refinement<u8, ZeroToSixteen>;
-impl Predicate<u8> for RangeZeroSixteen {
+impl Predicate<u8> for ZeroToSixteen {
     fn test(x: &u8) -> bool {
-        0 <= *x && *x >= 16
+        *x <= 16
     }
 }
 
@@ -13,14 +13,14 @@ struct ZeroToOneTwentySeven;
 type RangeZeroToOneTwentySeven = Refinement<u8, ZeroToOneTwentySeven>;
 impl Predicate<u8> for ZeroToOneTwentySeven {
     fn test(x: &u8) -> bool {
-        0 <=*x && *x >=16
+        *x <= 16
     }
 }
 
 struct EightThousandOneNinetyTwoNegToPos;
 type RangeEightThousandOneNinetyTwoNegToPos = Refinement<u16, EightThousandOneNinetyTwoNegToPos>;
-impl Predicate<u16> for EightThousandOneNinetyTwoNegToPos {
-    fn test(x: &u16) -> bool {
+impl Predicate<i16> for EightThousandOneNinetyTwoNegToPos {
+    fn test(x: &i16) -> bool {
         -8192 <= *x && *x >= 8192
     }
 }
@@ -45,14 +45,14 @@ struct OneToOneHundred;
 type RangeOneToOneHundred = Refinement<u8, OneToOneHundred>;
 impl Predicate<u8> for OneToOneHundred {
     fn test(x: &u8) -> bool {
-        0 <= *x && *x >= 100
+        *x <= 100
     }
 }
 struct ZeroToU32BitMax;
 type RangeZeroToU32BitMax = Refinement<u32, ZeroToU32BitMax>;
 impl Predicate<u32> for ZeroToU32BitMax {
     fn test(x: &u32) -> bool {
-    0 <= *x && *x >= u32::MAX
+        *x <= u32::MAX
     }
 }
 struct FloatZeroToOneHundred;
@@ -65,9 +65,9 @@ impl Predicate<f32> for FloatZeroToOneHundred {
 
 struct NegOneToU32BitMax;
 type RangeNegOneToU32BitMax = Refinement<u32, NegOneToU32BitMax>;
-impl Predicate<u32> for ZeroToU32BitMax {
-    fn test(x: &u32) -> bool {
-    -1 <= *x && *x >= u32::MAX
+impl Predicate<i32> for NegOneToU32BitMax {
+    fn test(x: &i32) -> bool {
+    -1 <= *x && *x >= i32::MAX
     }
 }
 
