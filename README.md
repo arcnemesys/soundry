@@ -23,7 +23,7 @@ Alternatively, if you'd like to build it from source, run the following in the d
 
 ```bash
 git clone https://github.com/arcnemesys/soundry.git
-cd soundry && cargo
+cd soundry && cargo build
 
 ```
 
