@@ -30,6 +30,10 @@ fn control_header_control() -> &'static str {
     control_header
 }
 
+fn parse_default_path(sfz_source: &str) -> IResult<&str, &str> {
+    tag("default_path=")(sfz_source)
+}
+
 // We'll just make default_path a tag and store whatever comes after the equal sign. 
 // fn parse_control(sfz_source: &str) -> IResult<&str, &str> {
 //     let (sfz_source, _) = tag("<control>")(sfz_source)?;
