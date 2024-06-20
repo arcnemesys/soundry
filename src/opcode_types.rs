@@ -2,7 +2,7 @@
 // Key Mapping
 // Midi Conditions
 // Internal Conditions
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum InputControl {
     LoChan(u8),
     HiChan(u8),
@@ -39,7 +39,7 @@ pub enum InputControl {
     OnLoCC(u8),
     OnHiCC(u8),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum BusOption {
     Main,
     Aux1,
@@ -56,7 +56,7 @@ pub enum BusOption {
     Fx4,
     Midi,
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum SamplePlayerParameter {
     Delay(f32),
     DelayRandom(f32),
@@ -72,7 +72,7 @@ pub enum SamplePlayerParameter {
     SyncBeats(f32),
     SyncOffset(f32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum PitchParameter {
     Transpose(u8),
     Tune(u8),
@@ -84,7 +84,7 @@ pub enum PitchParameter {
     BendDown(u16),
     BendStep(u16),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum PitchEGParameter {
     Delay(f32),
     Start(f32),
@@ -102,7 +102,7 @@ pub enum PitchEGParameter {
     Vel2Release(f32),
     Vel2Depth(u32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 
 pub enum PitchLFOParameter {
     Delay(f32),
@@ -116,7 +116,7 @@ pub enum PitchLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum FilterParameter {
     FilType(String),
     Cutoff(f32),
@@ -129,7 +129,7 @@ pub enum FilterParameter {
     VelTrack(u16),
     Random(u16),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 
 pub enum FilterEGParameter {
     Delay(f32),
@@ -148,7 +148,7 @@ pub enum FilterEGParameter {
     Vel2Release(f32),
     Vel2Depth(u16),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum FilterLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -161,7 +161,7 @@ pub enum FilterLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum AmplifierParameter {
     Volume(f32),
     Pan(f32),
@@ -191,7 +191,7 @@ pub enum AmplifierParameter {
     CfOutHighCC(u8),
     CfCCCurve(String),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum AmplifierEGParameter {
     Delay(f32),
     Start(f32),
@@ -214,7 +214,7 @@ pub enum AmplifierEGParameter {
     SustainCC(f32),
     ReleaseCC(f32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum AmplifierLFOParameter {
     Delay(f32),
     Fade(f32),
@@ -227,7 +227,7 @@ pub enum AmplifierLFOParameter {
     FreqChanAft(f32),
     FreqPolyAft(f32),
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 
 pub enum EqualizerParameter {
     Eq1Freq(f32),
@@ -256,7 +256,7 @@ pub enum EqualizerParameter {
     Eq3Vel2Gain(f32),
 }
 
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum AriaEffect {
     Limiter,
     Overdrive,
@@ -273,7 +273,7 @@ pub enum AriaEffect {
     SubSynth,
     RezFilter,
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum SfzEffect {
     Apan,
     Comp,
@@ -291,7 +291,7 @@ pub enum SfzEffect {
     Strings,
     Tdfir,
 }
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum EffectType {
     // These variants are going to have to be
     // refactored as this is a confusing naming.
@@ -304,7 +304,7 @@ pub enum EffectType {
 // Amplifier
 // Filter
 // EQ
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum PerformanceParameter {
     SamplePlayer(SamplePlayerParameter),
     Pitch(PitchParameter),

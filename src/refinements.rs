@@ -8,7 +8,6 @@ impl Predicate<u8> for ZeroToSixteen {
     }
 }
 
-
 struct ZeroToOneTwentySeven;
 type RangeZeroToOneTwentySeven = Refinement<u8, ZeroToOneTwentySeven>;
 impl Predicate<u8> for ZeroToOneTwentySeven {
@@ -67,10 +66,9 @@ struct NegOneToU32BitMax;
 type RangeNegOneToU32BitMax = Refinement<u32, NegOneToU32BitMax>;
 impl Predicate<i32> for NegOneToU32BitMax {
     fn test(x: &i32) -> bool {
-    -1 <= *x && *x >= i32::MAX
+        -1 <= *x && *x >= i32::MAX
     }
 }
-
 
 struct FloatZeroToThirtyTwo;
 type RangeFloatZeroToThirtyTwo = Refinement<f32, FloatZeroToThirtyTwo>;

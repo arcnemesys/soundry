@@ -1,15 +1,14 @@
-use std::collections::HashMap;
-use nom::{bytes::complete::tag, character::complete::space0, multi::many0, IResult};
 use crate::parser::parse_key_value;
+use nom::{bytes::complete::tag, character::complete::space0, multi::many0, IResult};
+use std::collections::HashMap;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Region {
     parameters: HashMap<String, String>,
 }
 
 pub struct SFZFile {
-    elements: Vec<Region>
+    elements: Vec<Region>,
 }
-
 
 pub fn parse_region(sfz_source: &str) -> IResult<&str, Region> {
     let (sfz_source, _) = tag("<region>")(sfz_source)?;
@@ -29,7 +28,7 @@ pub fn parse_region(sfz_source: &str) -> IResult<&str, Region> {
         parameters.insert(key.to_string(), value.to_string());
     }
 
-    Ok((sfz_source, Region {parameters}))
+    Ok((sfz_source, Region { parameters }))
 }
 
 pub fn parse_sfz(input: &str) -> IResult<&str, SFZFile> {

@@ -1,7 +1,7 @@
-use std::path::PathBuf;
-use std::collections::HashMap;
+use crate::opcode_types::{BusOption, EffectType};
 use crate::region::Region;
-use crate::opcode_types::{EffectType, BusOption};
+use std::collections::HashMap;
+use std::path::PathBuf;
 #[derive(Clone, Debug)]
 pub struct Group<T> {
     /// The regions to which the common parameters will be applied.
@@ -17,9 +17,6 @@ pub struct Group<T> {
 // Display
 // Default
 
-
-
-
 // Copy
 // Clone
 // Eq
@@ -30,7 +27,7 @@ pub struct Group<T> {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Global<T> {
     common_params: HashMap<String, T>,
 }
@@ -44,12 +41,11 @@ pub struct Global<T> {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Curve<T> {
     index: u32,
     values: Vec<(String, T)>,
 }
-
 
 // Copy
 // Clone
@@ -61,7 +57,7 @@ pub struct Curve<T> {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Effect {
     effect_type: EffectType,
     param_offset: u32,
@@ -83,7 +79,7 @@ pub struct Effect {
 // Debug
 // Display
 // Default
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Sample {
     name: PathBuf,
     data: Vec<u8>,
@@ -97,47 +93,39 @@ pub struct Sample {
 // Display
 // Default
 
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Master<T> {
     op_codes: Vec<(String, T)>,
     groups: Option<Vec<Group<T>>>,
 }
 
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub struct Control {
     /// Defines the SFZ header type of this struct.
     header_type: HeaderType,
     /// Contains the `#define` directives (variables) for the SFZ  control header.
-    directives: HashMap<String, u32>,
+    pub define_directives: HashMap<String, String>,
     /// Path to samples, should be relative for Cakewalk,
     /// but can be relative or absolute for ARIA, Bassmidi and sfizz.
     /// The value of `default_path` is reset by a new control header,
     /// in ARIA, but t in Cakewalk.
-    default_path: PathBuf,
+    pub default_path: PathBuf,
     /// Informs an SFZ player to offset incoming MIDI notes
     /// by a specified number of semitones.
-    note_offset: u8,
+    pub note_offset: u8,
     /// Informs an SFZ player to offset incoming MIDI notes
     /// by a specified number of octaves.
-    octave_offset: u8, // Refactor: use https://docs.rs/refinement/latest/refinement/#
+    pub octave_offset: u8, // Refactor: use https://docs.rs/refinement/latest/refinement/#
     /// Creates labels for MIDI control changes for altering parameters
     /// on MIDI-enabled devices.
-    label_ccn: Vec<(u32, String)>, // Refactor: Choose better representation.
+    pub label_ccn: Vec<(u32, String)>, // Refactor: Choose better representation.
     /// Sets default values for MIDI CC number N.
-    set_ccn: Vec<(u32, String)>,
+    pub set_ccn: Vec<(u32, String)>,
 }
 
 impl Control {
-    fn new() -> Self {
-        Self {
-            header_type: HeaderType::Control,
-            directives: HashMap::new(),
-            default_path: PathBuf::new(),
-            note_offset: 0,
-            octave_offset: 0,
-            label_ccn: vec![],
-            set_ccn: vec![],
-        }
+    pub fn new() -> Self {
+        Control::default()
     }
 }
 
@@ -145,7 +133,7 @@ impl Default for Control {
     fn default() -> Self {
         Self {
             header_type: HeaderType::Control,
-            directives: HashMap::new(),
+            define_directives: HashMap::new(),
             default_path: PathBuf::new(),
             note_offset: 0,
             octave_offset: 0,
@@ -162,7 +150,7 @@ impl Default for Control {
 // Display
 // Default
 
-#[derive(Clone, Debug, )]
+#[derive(Clone, Debug)]
 pub enum HeaderType {
     Region,
     Group,
