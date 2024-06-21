@@ -23,7 +23,7 @@ Alternatively, if you'd like to build it from source, run the following in the d
 
 ```bash
 git clone https://github.com/arcnemesys/soundry.git
-cd soundry && cargo build
+cd soundry && cargo
 
 ```
 
@@ -33,22 +33,51 @@ cd soundry && cargo build
 A simple placeholder example of using Soundry is given below, and will be replaced by a more refined example in the near future.
 
 ```rust
-use soundry::parse_sfz;
+use soundry::control::parse_control_header;
 
 fn main() {
 
-    let region_header = "<region>\nkey=62\nsample=snare.wav";
+  let control_header = r#"<control>
+    default_path=Samples\
+    #define $EXT wav
+    #include \"data\control.sfz\"
+    #include \"data\multiout.sfz\"
+    #include \"data\global.sfz\"
+    #include \"data\kick.sfz\"
+    #include \"data\snare.sfz\"
+    #include \"data\tom1.sfz\"
+    #include \"data\tom2.sfz\"
+    #include \"data\hihat.sfz\"
+    #include \"data\ride.sfz\"
+    #include \"data\crash.sfz\"#;
 
-    match parse_region_header(region_header) {
-        Ok((_, region)) => {
-            let expected_region = Region {
-                key: 62,
-                sample: String::from("snare.wav"),
-            };
-            assert_eq!(region, expected_region);
-            println!("Successfully parsed region: {:?}", region);
+    match parse_control_header(control_header) {
+        Ok((_, control)) => {
+            let expected_control_header = Control { 
+              header_type: Control, 
+              define_directives: {"EXT": "wav"},
+              include_directives: [
+                "data\\control.sfz",
+                "data\\multiout.sfz",
+                "data\\global.sfz",
+                "data\\kick.sfz",
+                "data\\snare.sfz",
+                "data\\tom1.sfz",
+                "data\\tom2.sfz",
+                "data\\hihat.sfz",
+                "data\\ride.sfz",
+                "data\\crash.sfz"
+              ],
+              default_path: "Samples\\", 
+              note_offset: 0, 
+              octave_offset: 0, 
+              label_ccn: [], 
+              set_ccn: [] 
+              };
+            assert_eq!(control, expected_control_header);
+            println!("Successfully parsed control header: {:?}", control);
         },
-        Err(e) => eprintln!("Failed to parse SFZ region header: {}", e),
+        Err(e) => eprintln!("Failed to parse SFZ control header: {}", e),
     }
 }
 
@@ -67,70 +96,4 @@ fn main() {
   - Refinement authors(s)
   - Meadowlark author(s)
   - Hound, Rodio, Dasp, Fundsp
-  - Anders Danhielson
-
-
-// Reference Material
-
-// http://drealm.info/sfz/plj-sfz.xhtml
-
-// https://sfzformat.com/headers/
-
-// Opcode List: https://www.linuxsampler.org/sfz/
-
-// https://sfzformat.com/legacy/
-
-// SFZ Tutorial/Intro: https://sfzformat.com/tutorials/basics/
-
-// MIDI CC Message List: https://atherproducer.com/online-tools-for-musicians/midi-cc-list/
-
-// https://www.sustainable-music.org/demystifying-sfz-a-guide-to-understanding-the-sfz-format-for-sound-libraries/
-
-// https://github.com/sfz/tests/tree/master
-
-// https://sfzlab.github.io/sfz-website/
-
-// https://edrums.github.io/en/linuxsampler/sfz/#Effects
-
-// https://raw.githubusercontent.com/sfzinstruments/mappings/master/Pettinhouse/Yamaha%209000/Yamaha%209000.sfz
-
-// https://github.com/sfzinstruments/mappings/blob/master/PastToFuture%20Disco%20Drums/Disco%20Drums%20-%20Multiout.sfz
-
-// TODO: Dedupe EG/LFO variants to be defined once and reused.
-
-// TODO [in progress]: Explore refinement types.
-
-// TODO [in progress]: Implement parsing with nom.
-
-// TODO: Add Cakewalk specific codes.
-
-// TODO: Add v2 opcodes for
-  
-  - Sample Playback
-  
-  - Voice LifeCycle
-  
-  - Midi Conditions
-  
-  - Internal Conditions
-  
-  - Triggers
-  
-  - Amplifier
-  
-  - EQ
-  
-  - Filter
-  
-  - Pitch
-  
-  - LFO
-  
-  - Curves
-  
-  - Effects
-  
-  - Loading
-  
-  - Wavetable Oscillator
 
