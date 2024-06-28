@@ -65,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cmplx_control_header = r#"<control>
     default_path=Samples\
     #define $EXT wav
+    $define $EXT flax
     #include \"data\control.sfz\"
     #include \"data\multiout.sfz\"
 
@@ -82,12 +83,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     #define $EXT flac
     #include \"data/control.sfz\"";
 
-    // let (remaining, output) = parse_identifier(simple_control_header)?;
+    let (remaining, output) = parse_identifier(cmplx_control_header)?;
     // println!("Remaining: {remaining}, Output: {:?}", output);
-    // let (remaining, output) = parse_default_path(remaining)?;
+    let (remaining, output) = parse_default_path(remaining)?;
     // println!("Remaining: {remaining}, Output: {:?}", output);
 
-
+    let (remaining, output) = parse_define_value(remaining)?;
+    // println!("Remaining: {remaining}, Control header: {:?}", output);
     let (remaining, output) = parse_control(cmplx_control_header)?;
     println!("Remaining: {remaining}, Control header: {:?}", output);
 

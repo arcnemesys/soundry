@@ -32,6 +32,6 @@ pub fn parse_region(sfz_source: &str) -> IResult<&str, Region> {
 }
 
 pub fn parse_sfz(input: &str) -> IResult<&str, SFZFile> {
-    let (input, elements) = nom::multi::many0(parse_region)(input)?;
+    let (input, elements) = many0(parse_region)(input)?;
     Ok((input, SFZFile { elements }))
 }
