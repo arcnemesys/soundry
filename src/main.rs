@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::boxed::Box;
 use std::error::Error;
 
-use crate::control::{parse_default_path, parse_define_value, parse_variable};
 use crate::header_types::{Control, Effect, Global, Group, Master};
 use crate::opcode_types::{BusOption, EffectType};
 use crate::parser::{parse_identifier, parse_key_value, parse_value};
