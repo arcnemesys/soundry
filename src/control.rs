@@ -1,5 +1,7 @@
 use crate::header_types::Control;
 use crate::parser::{parse_identifier, parse_key_value, parse_value};
+use nom::bytes::complete::escaped;
+use nom::character::complete::{alpha0, one_of};
 use nom::{
     bytes::complete::{tag, take_while, take_while1},
     character::complete::{newline, space1},
@@ -12,7 +14,6 @@ fn is_alphanumeric_underscore(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
 }
 
-
 fn variable_name(input: &str) -> IResult<&str, &str> {
     let (input, _) = tag("$")(input)?;
     take_while1(is_alphanumeric_underscore)(input)
@@ -21,7 +22,6 @@ fn variable_name(input: &str) -> IResult<&str, &str> {
 fn variable_value(input: &str) -> IResult<&str, &str> {
     take_while1(char::is_alphanumeric)(input)
 }
-
 
 fn parse_define_line(input: &str) -> IResult<&str, (&str, &str)> {
     let (input, _) = tag("#define")(input)?;
@@ -55,8 +55,10 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     let (remaining, _) = newline(remaining)?;
     let (remaining, _) = take_while(|c: char| c.is_whitespace())(remaining)?;
     let (remaining, directives) = parse_defines(remaining)?;
-
     add_define_directives(&mut control_header, directives);
+    let (remaining, include_directive) = parse_includes(remaining)?;
+    // control_header.include_directives.push(include_directive.to_owned());
+    // println!("Remaining: {remaining}, Var: {:?}", include_directive);
     Ok((remaining, control_header))
 }
 
@@ -66,4 +68,46 @@ pub fn add_define_directives(control_header: &mut Control, directives: Vec<(&str
             .define_directives
             .insert(define_var.to_owned(), define_value.to_owned());
     }
+}
+
+use nom::{
+    branch::alt,
+    bytes::complete::{escaped_transform, is_not},
+    character::complete::alpha1,
+    combinator::value,
+    sequence::delimited,
+};
+
+fn parser(input: &str) -> IResult<&str, String> {
+    escaped_transform(
+        is_not("\\\""), // match any character except \ and "
+        '\\',           // escape character
+        alt((
+            value("\\", tag("\\")),
+            value("\"", tag("\"")),
+            value("\n", tag("n")),
+        )),
+    )(input)
+}
+
+fn esc(s: &str) -> IResult<&str, &str> {
+    escaped(alpha0, '\\', one_of(r#"\"#))(s)
+}
+
+pub fn parse_include_line(input: &str) -> IResult<&str, String> {
+    let (remaining, output) = tag("#include")(input)?;
+
+    // let (remaining, output) = space1(remaining)?;
+    // println!("Remaining: {remaining}");
+    let (input, var_name) = parser(remaining)?;
+    println!("Remaining: {input}, Var: {var_name}");
+    // let include_directive = var_name.as_str();
+    // let (input, _) = newline(input)?;
+    // let (input, output) = newline(input)?;
+    // let (input, _) = space1(input)?;
+    // Ok((input, (var_name, var_value)))
+    Ok((input, var_name))
+}
+fn parse_includes(input: &str) -> IResult<&str, Vec<String>> {
+    many1(parse_include_line)(input)
 }

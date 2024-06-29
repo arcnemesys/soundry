@@ -121,6 +121,8 @@ pub struct Control {
     pub label_ccn: Vec<(u32, String)>, // Refactor: Choose better representation.
     /// Sets default values for MIDI CC number N.
     pub set_ccn: Vec<(u32, String)>,
+    /// Sets include directives for additional SFZ files
+    pub include_directives: Vec<String>
 }
 
 impl Control {
@@ -139,6 +141,7 @@ impl Default for Control {
             octave_offset: 0,
             label_ccn: vec![],
             set_ccn: vec![],
+            include_directives: vec![]
         }
     }
 }

@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use control::parse_control;
+use control::{parse_control, parse_include_line};
 use serde::{Deserialize, Serialize};
 use std::boxed::Box;
 use std::error::Error;
@@ -62,14 +62,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     set_cc40=127
     set_cc100=30"#;
 
-    let cmplx_control_header = r#"<control>
-    default_path=Samples\
-    #define $EXT wav
-    #define $EXTTWO flax
-    #include \"data\control.sfz\"
-    #include \"data\multiout.sfz\"
-
-#include \"data\global.sfz\"
+    let cmplx_control_header = r#"#include \"data\global.sfz\"
 #include \"data\kick.sfz\"
 #include \"data\snare.sfz\"
 #include \"data\tom1.sfz\"
@@ -91,8 +84,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // let (remaining, output) = parse_define_value(remaining)?;
     // println!("Remaining: {remaining}, Output: {:?}", output);
-    let (remaining, output) = parse_control(control_header)?;
-    println!("Remaining: {remaining}, Output: {:?}", output);
+    // let (remaining, output) = parse_control(cmplx_control_header)?;
+    let (remaining, output) = parse_include_line(cmplx_control_header)?;
+    // println!("Remaining: {remaining}, Output: {:?}", output);
 
     Ok(())
 }
