@@ -1,7 +1,8 @@
 use crate::header_types::Control;
 use crate::parser::{parse_identifier, parse_key_value, parse_value};
 use nom::bytes::complete::escaped;
-use nom::character::complete::{alpha0, one_of};
+use nom::character::complete::{alpha0, multispace0, one_of};
+use nom::multi::many0;
 use nom::{
     bytes::complete::{tag, take_while, take_while1},
     character::complete::{newline, space1},
@@ -93,22 +94,17 @@ fn dequote(i: &str) -> IResult<&str, &str> {
 pub fn parse_include_line(input: &str) -> IResult<&str, &str> {
     let (remaining, output) = tag("#include")(input)?;
 
-    let (remaining, output) = space1(remaining)?;
+    let (remaining, _) = space1(remaining)?;
     let (remaining, include_directive) = dequote(remaining)?;
     let (remaining, _) = char('"')(remaining)?;
-    println!("From `parse_include_line` - Remaining: {remaining}, incl_dir: {include_directive}");
-    // let (remaining, output) = parser(remaining)?;
-    // let include_directive = include_directive.to_string();
-    // let (remaining, _) = esc(remaining)?;
-    // let (remaining, _) = space1(remaining)?;
-    // println!("From `parse_include_line` - Remaining: {remaining}.");
-    // println!("From `parse_include_line` - Remaining: {remaiwning}.");
-    // let (input, output) = newline(input)?;
-    // Ok((input, (var_name, var_value)))
+    let (remaining, _) = multispace0(remaining)?;
+    // println!("From `parse_include_line` - Remaining: {remaining}, incl_dir: {include_directive}");
     Ok((remaining, include_directive))
 }
 fn parse_includes(input: &str) -> IResult<&str, Vec<&str>> {
-    many1(parse_include_line)(input)
+    let (remaining, output) = many0(parse_include_line)(input)?;
+
+    Ok((remaining, output))
 }
 
 pub fn parse_control(input: &str) -> IResult<&str, Control> {
@@ -121,8 +117,8 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     let (remaining, directives) = parse_defines(remaining)?;
     add_define_directives(&mut control_header, directives);
     let (remaining, include_directives) = parse_includes(remaining)?;
-    println!("Remaining: {remaining}, Includes: {:?}", include_directives);
-    // add_include_directives(&mut control_header, include_directives);
+    // println!("Remaining: {remaining}, Includes: {:?}", include_directives);
+    add_include_directives(&mut control_header, include_directives);
     // control_header.include_directives.push(include_directive.to_owned());
     Ok((remaining, control_header))
 }
