@@ -79,9 +79,9 @@ pub fn parse_include_line(input: &str) -> IResult<&str, &str> {
     Ok((remaining, include_directive))
 }
 fn parse_includes(input: &str) -> IResult<&str, Vec<&str>> {
-    let (remaining, output) = many0(parse_include_line)(input)?;
+    let (remaining, include_directives) = many0(parse_include_line)(input)?;
 
-    Ok((remaining, output))
+    Ok((remaining, include_directives))
 }
 
 pub fn parse_control(input: &str) -> IResult<&str, Control> {
@@ -99,8 +99,8 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
 
     let (remaining, include_directives) = parse_includes(remaining)?;
     add_include_directives(&mut control_header, include_directives);
-    let (remaining, output) = parse_midi_cc_labels(remaining)?;
-    println!("Remaining: {remaining}");
+    let (remaining, output) = parse_cc_labels(remaining)?;
+    // println!("Remaining: {remaining}, CC_labels: {:?}.", output);
     Ok((remaining, control_header))
 }
 
@@ -110,16 +110,21 @@ pub fn add_include_directives(control_header: &mut Control, directives: Vec<&str
     }
 }
 
-pub fn parse_midi_cc_labels(input: &str) -> IResult<&str, Vec<(u32, String)>> {
+pub fn parse_cc_label(input: &str) -> IResult<&str, (&str, &str, &str)> {
     let mut midi_labels: Vec<(u32, String)> = Vec::new();
 
     let (remaining, _) = take_while(|c: char| c.is_whitespace())(input)?;
 
     let (remaining, label_cc) = tag("label_cc")(remaining)?;
-    let label_cc = label_cc.to_owned().clone();
     let (remaining, (label_number, _, label_value)) = tuple((alphanumeric1, tag("="), take_to_newline))(remaining)?;
 
     println!("Remaining: {remaining}, label_number: {label_number}, label_value: {label_value}.");
 
-    Ok(("", vec![(0u32, String::new())]))
+    Ok((remaining, (label_cc, label_number, label_value)))
+}
+
+pub fn parse_cc_labels(input: &str) -> IResult<&str, Vec<(&str, &str, &str)>> {
+    let (remaining, cc_labels) = many1(parse_cc_label)(input)?;
+
+    Ok((remaining, cc_labels))
 }
