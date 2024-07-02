@@ -102,24 +102,27 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     let (remaining, cc_labels) = parse_cc_labels(remaining)?;
 
     for cc_tuple in cc_labels {
+
         let (label, label_number, label_value) = cc_tuple;
 
         let cc_label = format!("{}{}", label, label_number);
 
         let mut instrument = String::new();
         let mut modulation = String::new();
+
         if label_value.contains(" ") {
+
             let mut label_value_iter = label_value.split_whitespace();
 
             instrument = label_value_iter.next().unwrap().to_owned();
             modulation = label_value_iter.next().unwrap().to_owned();
+            
             control_header.label_ccn.insert(cc_label.clone(), (instrument, Some(modulation)));
         }
 
         control_header.label_ccn.insert(cc_label, (label_value.to_owned(), None));
 
     }
-    // println!("Remaining: {remaining}, CC_labels: {:?}.", cc_labels);
     Ok((remaining, control_header))
 }
 
@@ -130,16 +133,10 @@ pub fn add_include_directives(control_header: &mut Control, directives: Vec<&str
 }
 
 pub fn parse_cc_label(input: &str) -> IResult<&str, (&str, &str, &str)> {
-    let mut midi_labels: Vec<(u32, String)> = Vec::new();
-
     let (remaining, _) = take_while(|c: char| c.is_whitespace())(input)?;
 
     let (remaining, label_cc) = tag("label_cc")(remaining)?;
     let (remaining, (label_number, _, label_value)) = tuple((alphanumeric1, tag("="), take_to_newline))(remaining)?;
-
-    // println!("Remaining: {remaining}, label_number: {label_number}, label_value: {label_value}.");
-
-    // println!("Remaining: {remaining}");
 
     Ok((remaining, (label_cc, label_number, label_value)))
 }
