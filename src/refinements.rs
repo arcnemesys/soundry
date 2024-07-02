@@ -1,5 +1,7 @@
 use refinement::{Predicate, Refinement};
 
+// https://docs.rs/nom/latest/nom/combinator/fn.verify.html
+// This might come in handy for applying our refinements.
 struct ZeroToSixteen;
 type RangeZeroToSixteen = Refinement<u8, ZeroToSixteen>;
 impl Predicate<u8> for ZeroToSixteen {

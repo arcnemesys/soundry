@@ -1,10 +1,12 @@
 use crate::header_types::Control;
-use crate::parser::{parse_identifier, parse_key_value, parse_value};
+use crate::parser::{take_to_newline, parse_identifier, parse_key_value, parse_value};
+use nom::character::complete::alphanumeric1;
 use nom::{
+    sequence::tuple,
     IResult,
     multi::{many0, many1},
     bytes::complete::{tag, take_while, take_while1},
-    character::complete::{newline, space1, char, multispace0},
+    character::complete::{alpha1, newline, space1, char, multispace0},
 };
 
 use std::path::PathBuf;
@@ -86,8 +88,8 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     let mut control_header = Control::new();
     let (remaining, _) = parse_identifier(input)?;
     let (remaining, default_path) = parse_default_path(remaining)?;
-
     control_header.default_path = PathBuf::from(default_path);
+
 
     let (remaining, _) = newline(remaining)?;
     let (remaining, _) = take_while(|c: char| c.is_whitespace())(remaining)?;
@@ -97,6 +99,8 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
 
     let (remaining, include_directives) = parse_includes(remaining)?;
     add_include_directives(&mut control_header, include_directives);
+    let (remaining, output) = parse_midi_cc_labels(remaining)?;
+    println!("Remaining: {remaining}");
     Ok((remaining, control_header))
 }
 
@@ -104,4 +108,18 @@ pub fn add_include_directives(control_header: &mut Control, directives: Vec<&str
     for i in directives {
         control_header.include_directives.push(i.to_string());
     }
+}
+
+pub fn parse_midi_cc_labels(input: &str) -> IResult<&str, Vec<(u32, String)>> {
+    let mut midi_labels: Vec<(u32, String)> = Vec::new();
+
+    let (remaining, _) = take_while(|c: char| c.is_whitespace())(input)?;
+
+    let (remaining, label_cc) = tag("label_cc")(remaining)?;
+    let label_cc = label_cc.to_owned().clone();
+    let (remaining, (label_number, _, label_value)) = tuple((alphanumeric1, tag("="), take_to_newline))(remaining)?;
+
+    println!("Remaining: {remaining}, label_number: {label_number}, label_value: {label_value}.");
+
+    Ok(("", vec![(0u32, String::new())]))
 }
