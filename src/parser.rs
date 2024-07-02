@@ -1,5 +1,5 @@
 use nom::{
-    bytes::complete::{tag, take_till1, take_while, take_while1}, character::{complete::newline, is_newline}, sequence::tuple, IResult
+    bytes::complete::{tag, take_until1, take_while, take_while1}, sequence::tuple, IResult
 };
 
 pub fn parse_identifier(inpt: &str) -> IResult<&str, &str> {
@@ -18,6 +18,6 @@ pub fn parse_key_value(input: &str) -> IResult<&str, (&str, &str)> {
 }
 
 pub fn take_to_newline(input: &str) -> IResult<&str, &str> {
-    let (remaining, output) = take_while1(|c: char| c.is_alphanumeric() || c.is_whitespace())(input)?;
+    let (remaining, output) = take_until1("\n")(input)?;
     Ok((remaining, output))
 }

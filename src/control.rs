@@ -100,7 +100,7 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     let (remaining, include_directives) = parse_includes(remaining)?;
     add_include_directives(&mut control_header, include_directives);
     let (remaining, output) = parse_cc_labels(remaining)?;
-    // println!("Remaining: {remaining}, CC_labels: {:?}.", output);
+    println!("Remaining: {remaining}, CC_labels: {:?}.", output);
     Ok((remaining, control_header))
 }
 
@@ -118,7 +118,9 @@ pub fn parse_cc_label(input: &str) -> IResult<&str, (&str, &str, &str)> {
     let (remaining, label_cc) = tag("label_cc")(remaining)?;
     let (remaining, (label_number, _, label_value)) = tuple((alphanumeric1, tag("="), take_to_newline))(remaining)?;
 
-    println!("Remaining: {remaining}, label_number: {label_number}, label_value: {label_value}.");
+    // println!("Remaining: {remaining}, label_number: {label_number}, label_value: {label_value}.");
+
+    // println!("Remaining: {remaining}");
 
     Ok((remaining, (label_cc, label_number, label_value)))
 }
