@@ -99,8 +99,27 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
 
     let (remaining, include_directives) = parse_includes(remaining)?;
     add_include_directives(&mut control_header, include_directives);
-    let (remaining, output) = parse_cc_labels(remaining)?;
-    println!("Remaining: {remaining}, CC_labels: {:?}.", output);
+    let (remaining, cc_labels) = parse_cc_labels(remaining)?;
+
+    for cc_tuple in cc_labels {
+        let (label, label_number, label_value) = cc_tuple;
+
+        let cc_label = format!("{}{}", label, label_number);
+
+        let mut instrument = String::new();
+        let mut modulation = String::new();
+        if label_value.contains(" ") {
+            let mut label_value_iter = label_value.split_whitespace();
+
+            instrument = label_value_iter.next().unwrap().to_owned();
+            modulation = label_value_iter.next().unwrap().to_owned();
+            control_header.label_ccn.insert(cc_label.clone(), (instrument, Some(modulation)));
+        }
+
+        control_header.label_ccn.insert(cc_label, (label_value.to_owned(), None));
+
+    }
+    // println!("Remaining: {remaining}, CC_labels: {:?}.", cc_labels);
     Ok((remaining, control_header))
 }
 

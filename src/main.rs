@@ -83,13 +83,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // let (remaining, output) = parse_define_value(remaining)?;
     // println!("Remaining: {remaining}, Output: {:?}", output);
-    let (remaining, output) = parse_control(control_header)?;
+    let (remaining, control_header) = parse_control(control_header)?;
     // let (remaining, output) = parse_include_line(cmplx_control_header)?;
 
-    // println!("Remaining: {remaining}, Output: {:?}", output);
-    // for i in output.include_directives {
-    //     println!("include directive: {i}");
-    // }
+    // println!("Remaining: {remaining}, Control Header: {:?}", control_header);
+    for i in control_header.label_ccn {
+        println!("label_ccn: {:?}", i);
+    }
 
     Ok(())
 }

@@ -118,7 +118,7 @@ pub struct Control {
     pub octave_offset: u8, // Refactor: use https://docs.rs/refinement/latest/refinement/#
     /// Creates labels for MIDI control changes for altering parameters
     /// on MIDI-enabled devices.
-    pub label_ccn: Vec<(u32, String)>, // Refactor: Choose better representation.
+    pub label_ccn: HashMap<String, (String, Option<String>)>, // Refactor: Choose better representation.
     /// Sets default values for MIDI CC number N.
     pub set_ccn: Vec<(u32, String)>,
     /// Sets include directives for additional SFZ files
@@ -139,7 +139,7 @@ impl Default for Control {
             default_path: PathBuf::new(),
             note_offset: 0,
             octave_offset: 0,
-            label_ccn: vec![],
+            label_ccn: HashMap::new(),
             set_ccn: vec![],
             include_directives: vec![]
         }
