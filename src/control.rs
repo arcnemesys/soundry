@@ -2,6 +2,8 @@ use crate::header_types::Control;
 use crate::parser::{white_space, take_to_newline, parse_identifier, parse_key_value, parse_value};
 use crate::refinements::{RangeZeroToOneTwentySeven};
 use nom::character::complete::alphanumeric1;
+use nom::error::{Error, ErrorKind::*, VerboseError, VerboseErrorKind};
+use nom::Err;
 use nom::{
     sequence::tuple,
     IResult,
@@ -102,28 +104,7 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
     add_include_directives(&mut control_header, include_directives);
     let (remaining, cc_labels) = parse_cc_labels(remaining)?;
 
-    for cc_tuple in cc_labels {
-
-        let (label, label_number, label_value) = cc_tuple;
-
-        let cc_label = format!("{}{}", label, label_number);
-
-        let mut instrument = String::new();
-        let mut modulation = String::new();
-
-        if label_value.contains(" ") {
-
-            let mut label_value_iter = label_value.split_whitespace();
-
-            instrument = label_value_iter.next().unwrap().to_owned();
-            modulation = label_value_iter.next().unwrap().to_owned();
-            
-            control_header.label_ccn.insert(cc_label.clone(), (instrument, Some(modulation)));
-        }
-
-        control_header.label_ccn.insert(cc_label, (label_value.to_owned(), None));
-
-    }
+    add_label_ccns(&mut control_header, cc_labels);
     let (remaining, output) = parse_set_ccns(remaining)?;
     println!("output: {:?}", output);
     Ok((remaining, control_header))
@@ -181,10 +162,11 @@ pub fn parse_cc_labels(input: &str) -> IResult<&str, Vec<(&str, &str, &str)>> {
     Ok((remaining, cc_labels))
 }
 
-pub fn parse_cc_var(input: &str) -> IResult<&str, (&str, &str)> {
+pub fn parse_cc_var(input: &str) -> IResult<&str, (&str, &str), > {
     let (remaining, (var_name, _,  var_value)) = tuple((parse_identifier, tag("="), take_to_newline))(input)?;
 
     Ok((remaining, (var_name, var_value)))
+
 }
 
 pub fn parse_set_ccn(input: &str) -> IResult<&str, (&str, &str)> {
