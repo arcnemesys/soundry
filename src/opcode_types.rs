@@ -318,3 +318,29 @@ pub enum PerformanceParameter {
     AmplifierLFO(AmplifierLFOParameter),
     Equalizer(EqualizerParameter),
 }
+
+pub enum InstrumentSettings {
+    Mod(String),
+    Default(String),
+    Define(DefineDirective),
+    GlobalLabel(String),
+    GroupLabel(String),
+    Hint,
+    Include(String),
+    LabelCcn(String),
+    LabelKey(String),
+    LabelOutput(String),
+    MasterLabel(String),
+    NoteOffset(i8),
+    OctaveOffset(i8),
+    RegionLabel(String),
+    SetCcn(u8),
+    SetHdCCN(f32),
+    SwNoteOffset(i8),
+    SwOctaveOffset(i8)
+
+}
+pub struct DefineDirective {
+    define_name: String,
+    define_value: String,
+}

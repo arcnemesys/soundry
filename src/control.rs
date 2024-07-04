@@ -1,15 +1,11 @@
 use crate::header_types::Control;
 use crate::parser::{white_space, take_to_newline, parse_identifier, parse_key_value, parse_value};
-use crate::refinements::{RangeZeroToOneTwentySeven};
-use nom::character::complete::alphanumeric1;
-use nom::error::{Error, ErrorKind::*, VerboseError, VerboseErrorKind};
-use nom::Err;
 use nom::{
     sequence::tuple,
     IResult,
     multi::{many0, many1},
     bytes::complete::{tag, take_while, take_while1},
-    character::complete::{alpha1, newline, space1, char, multispace0},
+    character::complete::{newline, space1, char, multispace0},
 };
 
 use std::path::PathBuf;
