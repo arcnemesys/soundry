@@ -87,9 +87,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     // let (remaining, output) = parse_include_line(cmplx_control_header)?;
 
     // println!("Remaining: {remaining}, Control Header: {:?}", control_header);
-    for i in control_header.label_ccn {
-        println!("label_ccn: {:?}", i);
-    }
 
     Ok(())
 }

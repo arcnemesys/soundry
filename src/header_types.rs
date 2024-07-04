@@ -120,7 +120,7 @@ pub struct Control {
     /// on MIDI-enabled devices.
     pub label_ccn: HashMap<String, (String, Option<String>)>, // Refactor: Choose better representation.
     /// Sets default values for MIDI CC number N.
-    pub set_ccn: Vec<(u32, String)>,
+    pub set_ccn: HashMap<String, String>,
     /// Sets include directives for additional SFZ files
     pub include_directives: Vec<String>
 }
@@ -140,7 +140,7 @@ impl Default for Control {
             note_offset: 0,
             octave_offset: 0,
             label_ccn: HashMap::new(),
-            set_ccn: vec![],
+            set_ccn: HashMap::new(),
             include_directives: vec![]
         }
     }

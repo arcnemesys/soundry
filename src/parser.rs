@@ -21,3 +21,8 @@ pub fn take_to_newline(input: &str) -> IResult<&str, &str> {
     let (remaining, output) = take_until1("\n")(input)?;
     Ok((remaining, output))
 }
+pub fn white_space(input: &str) -> IResult<&str, ()> {
+   let (remaining, _) = take_while(|c: char| c.is_whitespace())(input)?;
+
+   Ok((remaining, ()))
+}
