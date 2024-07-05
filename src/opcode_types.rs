@@ -6,11 +6,6 @@
 pub enum InputControl {
     LoChan(u8),
     HiChan(u8),
-    LoKey(u8),
-    HiKey(u8),
-    Key,
-    LoVel(u8),
-    HiVel(u8),
     LoCC(u8),
     HiCC(u8),
     LoBend(i16),
@@ -165,7 +160,6 @@ pub enum AmplifierParameter {
     AmpVelCurve(f32),
     Random(f32),
     RtDecay(f32),
-    Output(u16),
     GainCC(f32),
     CfInLowKey(u8),
     CfInHighKey(u8),
@@ -390,4 +384,16 @@ pub enum VoiceLifecycle {
     OffCurve(i8),
     OffShape(f32),
     OffTime(f32),
+    Output(u16),
+    PolyphonyGroup(i32),
+    PolyphonyStealing(u32),
+    RtDead(String)
+}
+
+pub enum KeyMapping {
+    HiKey(u8),
+    HiVel(u8),
+    Key,
+    LoVel(u8),
+    LoKey(u8),
 }
