@@ -33,9 +33,6 @@ pub enum InputControl {
     SwPrevious(u8),
     SwVel(String),   // Can be either current or previous.
     Trigger(String), // Can be attack, release, first or legato.
-    Group(u8),
-    OffBy(u32),
-    OffMode(String), // Can be fast or normal
     OnLoCC(u8),
     OnHiCC(u8),
 }
@@ -60,15 +57,10 @@ pub enum BusOption {
 pub enum SamplePlayerParameter {
     Delay(f32),
     DelayRandom(f32),
-    DelayCC(f32),
+    Count(u32),
     Offset(u32),
     OffsetRandom(u16),
     OffsetCC(u16),
-    End(i32),
-    Count(u32),
-    LoopMode(String), // Can be no_loop, one_shot, loop_continuous, loop_sustain
-    LoopStart(u32),
-    LoopEnd(u32),
     SyncBeats(f32),
     SyncOffset(f32),
 }
@@ -335,7 +327,8 @@ pub enum InstrumentSettings {
     OctaveOffset(i8),
     RegionLabel(String),
     SetCcn(u8),
-    SetHdCCN(f32),
+    SetHdCC(f32),
+    SetRealCC(f32),
     SwNoteOffset(i8),
     SwOctaveOffset(i8)
 
@@ -343,4 +336,58 @@ pub enum InstrumentSettings {
 pub struct DefineDirective {
     define_name: String,
     define_value: String,
+}
+
+pub enum SamplePlayback {
+    Count(u32),
+    DelayBeatsCurve(u8),
+    DelayBeatsOn(String),
+    DelayBeatsRandom(f32),
+    DelayBeats(f32),
+    DelayCC(f32),
+    DelayCurve(u8),
+    DelayOn(f32),
+    DelayRandom(f32),
+    DelaySamplesOn(u32),
+    DelaySamples(u32),
+    Delay(f32),
+    Direction(String),
+    End(u32),
+    LoopCount(u32),
+    LoopCrossfade(f32),
+    LoopLengthOn(String),
+    LoopLengthCC(String),
+    LoopMode(String), // Can be no_loop, one_shot, loop_continuous, loop_sustain
+    LoopStart(u32),
+    LoopStartCC(u32),
+    LoopEnd(u32),
+    LoopTune(f32),
+    LoopType(String),
+    Md5(String),
+    OffsetMode(String),
+    Offset(u32),
+    OffsetRandom(u32),
+    OffsetCC(u32),
+    OffsetOn(u16),
+    ReverseHighCC(u8),
+    ReverseLowCC(u8),
+    SampleDynParamNOnCC(f32),
+    SampleDynParam(f32),
+    SampleFadeout(f32),
+    Sample(String),
+    StopBeats(f32),
+    SyncBeats(f32),
+    SyncOffset(f32),
+    WaveGuide(String),
+}
+
+pub enum VoiceLifecycle {
+    Group(i32),
+    NotePolyphony(u32),
+    NoteSelfmask(String),
+    OffBy(i32),
+    OffMode(String), // Can be fast or normal
+    OffCurve(i8),
+    OffShape(f32),
+    OffTime(f32),
 }
