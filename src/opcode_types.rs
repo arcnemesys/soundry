@@ -4,9 +4,22 @@
 // Internal Conditions
 #[derive(Clone, Debug)]
 pub enum InputControl {
+}
+
+pub enum Triggers {
     Trigger(String), // Can be attack, release, first or legato.
-    OnLoCC(u8),
-    OnHiCC(u8),
+    OnHighCC(u8),
+    OnHighHdCC(f32),
+    OnLowCC(u8),
+    OnLowHdCC(f32),
+    StartHighCC(u8),
+    StartHighHdCC(f32),
+    StartLowCC(u8),
+    StartLowHdCC(f32),
+    StopHighCC(i32),
+    StopHighHdCC(f32),
+    StopLowCC(u32),
+    StopLowHdCC(f32),
 }
 
 pub enum InternalConditions {
