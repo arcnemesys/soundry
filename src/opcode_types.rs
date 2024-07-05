@@ -4,19 +4,26 @@
 // Internal Conditions
 #[derive(Clone, Debug)]
 pub enum InputControl {
-    LoChanAft(u8),
-    HiChanAft(u8),
-    LoPolyAft(u8),
-    HiPolyAft(u8),
-    LoRand(f32),
-    HiRand(f32),
-    LoHpm(f32),
-    HiBpm(f32),
-    SeqLength(u8),
-    SeqPosition(u8),
     Trigger(String), // Can be attack, release, first or legato.
     OnLoCC(u8),
     OnHiCC(u8),
+}
+
+pub enum InternalConditions {
+    HighChanAft(u8),
+    HighPolyAft(u8),
+    HighBpm(f32),
+    HighRand(f32),
+    HighTimer(f32),
+    LowChanAft(u8),
+    LowPolyAft(u8),
+    LowRand(f32),
+    LowBpm(f32),
+    LowTimer(f32),
+    SeqLength(u8),
+    SeqPosition(u8),
+
+
 }
 #[derive(Clone, Debug)]
 pub enum BusOption {
@@ -415,6 +422,4 @@ pub enum MidiConditions {
     VarNNCurveCC(u8),
     VarNNMod(String),
     VarNNOnCC(f32),
-
-
 }
