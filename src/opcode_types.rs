@@ -4,12 +4,6 @@
 // Internal Conditions
 #[derive(Clone, Debug)]
 pub enum InputControl {
-    LoChan(u8),
-    HiChan(u8),
-    LoCC(u8),
-    HiCC(u8),
-    LoBend(i16),
-    HiBend(i16),
     LoChanAft(u8),
     HiChanAft(u8),
     LoPolyAft(u8),
@@ -20,13 +14,6 @@ pub enum InputControl {
     HiBpm(f32),
     SeqLength(u8),
     SeqPosition(u8),
-    SwLoKey(u8),
-    SwHiKey(u8),
-    SwLast(u8),
-    SwDown(u8),
-    SwUp(u8),
-    SwPrevious(u8),
-    SwVel(String),   // Can be either current or previous.
     Trigger(String), // Can be attack, release, first or legato.
     OnLoCC(u8),
     OnHiCC(u8),
@@ -396,4 +383,38 @@ pub enum KeyMapping {
     Key,
     LoVel(u8),
     LoKey(u8),
+}
+
+pub enum MidiConditions {
+    HighBend(i16),
+    HighCC(u8),
+    HighChan(u8),
+    HighHdCC(f32),
+    HighProg(u8),
+    LowBend(i16),
+    LowCC(u8),
+    LowChan(u8),
+    LowHdCC(f32),
+    SwLowKey(u8),
+    SwLast(u8),
+    SwDown(u8),
+    SwHighKey(u8),
+    SwUp(u8),
+    SwPrevious(u8),
+    SwVel(String),
+    SostenutoCC(u8),
+    SostenutoLow(f32),
+    SustainCC(u8),
+    SustainLow(f32),
+    SustainSw(String),
+    SwDefault(u8),
+    SwHighLast(u8),
+    SwLabel(String),
+    SwLowLast(u8),
+    VarNN(String),
+    VarNNCurveCC(u8),
+    VarNNMod(String),
+    VarNNOnCC(f32),
+
+
 }
