@@ -14,32 +14,32 @@ fn is_alphanumeric_underscore(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
 }
 
-fn variable_name(input: &str) -> IResult<&str, &str> {
-    let (input, _) = tag("$")(input)?;
-    take_while1(is_alphanumeric_underscore)(input)
+fn variable_name(sfz_source: &str) -> IResult<&str, &str> {
+    let (remaining, _) = tag("$")(sfz_source)?;
+    take_while1(|c: char| c.is_alphanumeric() || c == '_')(remaining)
 }
 
-fn variable_value(input: &str) -> IResult<&str, &str> {
-    take_while1(char::is_alphanumeric)(input)
+fn variable_value(sfz_source: &str) -> IResult<&str, &str> {
+    take_while1(char::is_alphanumeric)(sfz_source)
 }
 
-fn parse_define_line(input: &str) -> IResult<&str, (&str, &str)> {
-    let (input, _) = tag("#define")(input)?;
-    let (input, _) = space1(input)?;
-    let (input, var_name) = variable_name(input)?;
-    let (input, _) = space1(input)?;
-    let (input, var_value) = variable_value(input)?;
-    let (input, _) = newline(input)?;
-    let (input, _) = space1(input)?;
-    Ok((input, (var_name, var_value)))
+fn parse_define_line(sfz_source: &str) -> IResult<&str, (&str, &str)> {
+    let (remaining, _) = tag("#define")(sfz_source)?;
+    let (remaining, _) = space1(remaining)?;
+    let (remaining, var_name) = variable_name(remaining)?;
+    let (remaining, _) = space1(remaining)?;
+    let (remaining, var_value) = variable_value(remaining)?;
+    let (remaining, _) = newline(remaining)?;
+    let (remaining, _) = space1(remaining)?;
+    Ok((remaining, (var_name, var_value)))
 }
 
-fn parse_defines(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
-    many1(parse_define_line)(input)
+fn parse_defines(sfz_source: &str) -> IResult<&str, Vec<(&str, &str)>> {
+    many1(parse_define_line)(sfz_source)
 }
 
-pub fn parse_default_path(input: &str) -> IResult<&str, &str> {
-    let (remaining, _) = parse_identifier(&input)?;
+pub fn parse_default_path(sfz_source: &str) -> IResult<&str, &str> {
+    let (remaining, _) = parse_identifier(&sfz_source)?;
     let (remaining, _) = parse_value(remaining)?;
     let (remaining, output) = parse_key_value(remaining)?;
 
@@ -55,8 +55,8 @@ pub fn add_define_directives(control_header: &mut Control, directives: Vec<(&str
     }
 }
 
-fn dequote(i: &str) -> IResult<&str, &str> {
-    let remaining = char('"')(i)?;
+fn dequote(sfz_source: &str) -> IResult<&str, &str> {
+    let remaining = char('"')(sfz_source)?;
 
     let (include_var, _) = remaining;
 
@@ -67,8 +67,8 @@ fn dequote(i: &str) -> IResult<&str, &str> {
     Ok((remaining, include_directive))
 }
 
-pub fn parse_include_line(input: &str) -> IResult<&str, &str> {
-    let (remaining, _) = tag("#include")(input)?;
+pub fn parse_include_line(sfz_source: &str) -> IResult<&str, &str> {
+    let (remaining, _) = tag("#include")(sfz_source)?;
 
     let (remaining, _) = space1(remaining)?;
     let (remaining, include_directive) = dequote(remaining)?;
@@ -77,15 +77,15 @@ pub fn parse_include_line(input: &str) -> IResult<&str, &str> {
 
     Ok((remaining, include_directive))
 }
-fn parse_includes(input: &str) -> IResult<&str, Vec<&str>> {
-    let (remaining, include_directives) = many0(parse_include_line)(input)?;
+fn parse_includes(sfz_source: &str) -> IResult<&str, Vec<&str>> {
+    let (remaining, include_directives) = many0(parse_include_line)(sfz_source)?;
 
     Ok((remaining, include_directives))
 }
 
-pub fn parse_control(input: &str) -> IResult<&str, Control> {
+pub fn parse_control(sfz_source: &str) -> IResult<&str, Control> {
     let mut control_header = Control::new();
-    let (remaining, _) = parse_identifier(input)?;
+    let (remaining, _) = parse_identifier(sfz_source)?;
     let (remaining, default_path) = parse_default_path(remaining)?;
     control_header.default_path = PathBuf::from(default_path);
 
@@ -143,8 +143,8 @@ pub fn add_label_ccns(control_header: &mut Control, label_ccns: Vec<(&str, &str,
     }
 }
 
-pub fn parse_cc_label(input: &str) -> IResult<&str, (&str, &str, &str)> {
-    let (remaining, _) = take_while(|c: char| c.is_whitespace())(input)?;
+pub fn parse_cc_label(sfz_source: &str) -> IResult<&str, (&str, &str, &str)> {
+    let (remaining, _) = take_while(|c: char| c.is_whitespace())(sfz_source)?;
 
     let (remaining, label_cc) = tag("label_cc")(remaining)?;
     let (remaining, (label_number, label_value)) = parse_cc_var(remaining)?;
@@ -152,28 +152,28 @@ pub fn parse_cc_label(input: &str) -> IResult<&str, (&str, &str, &str)> {
     Ok((remaining, (label_cc, label_number, label_value)))
 }
 
-pub fn parse_cc_labels(input: &str) -> IResult<&str, Vec<(&str, &str, &str)>> {
-    let (remaining, cc_labels) = many1(parse_cc_label)(input)?;
+pub fn parse_cc_labels(sfz_source: &str) -> IResult<&str, Vec<(&str, &str, &str)>> {
+    let (remaining, cc_labels) = many1(parse_cc_label)(sfz_source)?;
 
     Ok((remaining, cc_labels))
 }
 
-pub fn parse_cc_var(input: &str) -> IResult<&str, (&str, &str), > {
-    let (remaining, (var_name, _,  var_value)) = tuple((parse_identifier, tag("="), take_to_newline))(input)?;
+pub fn parse_cc_var(sfz_source: &str) -> IResult<&str, (&str, &str), > {
+    let (remaining, (var_name, _,  var_value)) = tuple((parse_identifier, tag("="), take_to_newline))(sfz_source)?;
 
     Ok((remaining, (var_name, var_value)))
 
 }
 
-pub fn parse_set_ccn(input: &str) -> IResult<&str, (&str, &str)> {
-    let (remaining, _) = white_space(input)?;
+pub fn parse_set_ccn(sfz_source: &str) -> IResult<&str, (&str, &str)> {
+    let (remaining, _) = white_space(sfz_source)?;
     let (remaining, (set_number, set_value, )) = parse_cc_var(remaining)?;
     println!("set_number: {set_number}, set_value: {set_value}");
     Ok((remaining, (set_number, set_value)))
 }
 
-pub fn parse_set_ccns(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
-    let (remaining, set_cc_vars) = many0(parse_set_ccn)(input)?;
+pub fn parse_set_ccns(sfz_source: &str) -> IResult<&str, Vec<(&str, &str)>> {
+    let (remaining, set_cc_vars) = many0(parse_set_ccn)(sfz_source)?;
 
     Ok((remaining, set_cc_vars))
 }
