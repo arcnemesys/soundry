@@ -1,10 +1,29 @@
-// These seem to map on to the SFZ opcode categories:
-// Key Mapping
-// Midi Conditions
-// Internal Conditions
+// STATUS: [] Real-Time Instrument Script
+// STATUS: [Done] Sample Playback
+// STATUS: [Done] Instrument Settings
+// STATUS: [Done] Voice Lifecycle
+// STATUS: [Done] Key Mapping
+// STATUS: [DONE] MIDI Conditions
+// STATUS: [Done] Internal Conditions
+// STATUS: [Done] Triggers
+// STATUS: [] Amplifier
+// STATUS: [] EQ
+// STATUS: [] Filter
+// STATUS: [] Pitch
+// STATUS: [] Envelope Generators
+// STATUS: [] LFO
+// STATUS: [] Curves
+// STATUS: [] Effects
+// STATUS: [] Loading
+// STATUS: [] Wavetable Oscillator
+
+// ccN -> CC
+// onccN ->  OnCC
+// lo -> Low
+// hi -> High
+//
 #[derive(Clone, Debug)]
-pub enum InputControl {
-}
+pub enum InputControl {}
 
 pub enum Triggers {
     Trigger(String), // Can be attack, release, first or legato.
@@ -21,6 +40,125 @@ pub enum Triggers {
     StopLowCC(u32),
     StopLowHdCC(f32),
 }
+pub enum SamplePlayback {
+    Count(u32),
+    DelayBeatsCurve(u8),
+    DelayBeatsOn(String),
+    DelayBeatsRandom(f32),
+    DelayBeats(f32),
+    DelayCC(f32),
+    DelayCurve(u8),
+    DelayOn(f32),
+    DelayRandom(f32),
+    DelaySamplesOn(u32),
+    DelaySamples(u32),
+    Delay(f32),
+    Direction(String),
+    End(u32),
+    LoopCount(u32),
+    LoopCrossfade(f32),
+    LoopLengthOn(String),
+    LoopLengthCC(String),
+    LoopMode(String), // Can be no_loop, one_shot, loop_continuous, loop_sustain
+    LoopStart(u32),
+    LoopStartCC(u32),
+    LoopEnd(u32),
+    LoopTune(f32),
+    LoopType(String),
+    Md5(String),
+    OffsetMode(String),
+    Offset(u32),
+    OffsetRandom(u32),
+    OffsetCC(u32),
+    OffsetOn(u16),
+    ReverseHighCC(u8),
+    ReverseLowCC(u8),
+    SampleDynParamNOnCC(f32),
+    SampleDynParam(f32),
+    SampleFadeout(f32),
+    Sample(String),
+    StopBeats(f32),
+    SyncBeats(f32),
+    SyncOffset(f32),
+    WaveGuide(String),
+}
+
+pub enum InstrumentSettings {
+    Mod(String),
+    Default(String),
+    Define(DefineDirective),
+    GlobalLabel(String),
+    GroupLabel(String),
+    Hint,
+    Include(String),
+    LabelCcn(String),
+    LabelKey(String),
+    LabelOutput(String),
+    MasterLabel(String),
+    NoteOffset(i8),
+    OctaveOffset(i8),
+    RegionLabel(String),
+    SetCcn(u8),
+    SetHdCC(f32),
+    SetRealCC(f32),
+    SwNoteOffset(i8),
+    SwOctaveOffset(i8),
+}
+
+pub enum VoiceLifecycle {
+    Group(i32),
+    NotePolyphony(u32),
+    NoteSelfmask(String),
+    OffBy(i32),
+    OffMode(String), // Can be fast or normal
+    OffCurve(i8),
+    OffShape(f32),
+    OffTime(f32),
+    Output(u16),
+    PolyphonyGroup(i32),
+    PolyphonyStealing(u32),
+    RtDead(String),
+}
+
+pub enum KeyMapping {
+    HiKey(u8),
+    HiVel(u8),
+    Key,
+    LoVel(u8),
+    LoKey(u8),
+}
+
+pub enum MidiConditions {
+    HighBend(i16),
+    HighCC(u8),
+    HighChan(u8),
+    HighHdCC(f32),
+    HighProg(u8),
+    LowBend(i16),
+    LowCC(u8),
+    LowChan(u8),
+    LowHdCC(f32),
+    SwLowKey(u8),
+    SwLast(u8),
+    SwDown(u8),
+    SwHighKey(u8),
+    SwUp(u8),
+    SwPrevious(u8),
+    SwVel(String),
+    SostenutoCC(u8),
+    SostenutoLow(f32),
+    SustainCC(u8),
+    SustainLow(f32),
+    SustainSw(String),
+    SwDefault(u8),
+    SwHighLast(u8),
+    SwLabel(String),
+    SwLowLast(u8),
+    VarNN(String),
+    VarNNCurveCC(u8),
+    VarNNMod(String),
+    VarNNOnCC(f32),
+}
 
 pub enum InternalConditions {
     HighChanAft(u8),
@@ -35,8 +173,6 @@ pub enum InternalConditions {
     LowTimer(f32),
     SeqLength(u8),
     SeqPosition(u8),
-
-
 }
 #[derive(Clone, Debug)]
 pub enum BusOption {
@@ -157,15 +293,11 @@ pub enum FilterLFOParameter {
 }
 #[derive(Clone, Debug)]
 pub enum AmplifierParameter {
-    Volume(f32),
-    PanCC(String),
-    Width(f32),
-    Position(f32),
     AmpKeyCenter(u8),
     AmpKeyTrack(f32),
+    AmpVelTrackCC(f32),
     AmpRandom(f32),
     AmpVelCurve(f32),
-    AmpVelTrackCC(f32),
     AmplVelTrackCurveCC(u8),
     AmplVelTrackCurveOnCC(u8),
     AmpVelTrackRandom(String),
@@ -173,23 +305,50 @@ pub enum AmplifierParameter {
     AmplitudeCC(f32),
     AmplitudeCurveCC(u8),
     AmplitudeOnCC(f32),
-    AmplitudeSmooth(String),
+    AmplitudeSmoothCC(String),
     Amplitude(f32),
+    GainOnCC(f32),
     GainCC(f32),
     GainRandom(String),
     GlobalAmplitude(f32),
     GlobalVolume(f32),
+    GroupAmplitude(f32),
+    GroupVolume(f32),
+    MasterAmplitude(f32),
     MasterVolume(f32),
+    PanCC(String),
     PanCurveCC(f32),
     PanKeyCenter(u8),
     PanKeyTrack(f32),
     PanLaw(String),
     PanOnCC(String),
     PanRandom(f32),
-    PanSmooth(String),
+    PanSmoothCC(String),
     PanStepCC(String),
     PanVelTrack(f32),
+    Pan(f32),
+    Phase(String),
+    PositionCurveCC(u32),
+    PositionKeyCenter(String),
+    PositionKeyTrack(String),
+    PositionOnCC(String),
+    PositionRandom(f32),
+    PositionSmoothCC(String),
+    PositionStepCC(String),
+    PositionVelTrack(String),
+    Position(f32),
     RtDecay(f32),
+    RtDecayNTime(f32),
+    RTDecayN(f32),
+    VolumeCurveCC(u32),
+    VolumeOnCC(f32),
+    VolumeSmoothCC(String),
+    VolumeStepCC(String),
+    Volume(f32),
+    WidthCurveCC(u32),
+    WidthOnCC(String),
+    WidthStepCC(String),
+    Width(f32),
     CfInLowKey(u8),
     CfInHighKey(u8),
     CfOutLowKey(u8),
@@ -334,127 +493,7 @@ pub enum PerformanceParameter {
     Equalizer(EqualizerParameter),
 }
 
-pub enum InstrumentSettings {
-    Mod(String),
-    Default(String),
-    Define(DefineDirective),
-    GlobalLabel(String),
-    GroupLabel(String),
-    Hint,
-    Include(String),
-    LabelCcn(String),
-    LabelKey(String),
-    LabelOutput(String),
-    MasterLabel(String),
-    NoteOffset(i8),
-    OctaveOffset(i8),
-    RegionLabel(String),
-    SetCcn(u8),
-    SetHdCC(f32),
-    SetRealCC(f32),
-    SwNoteOffset(i8),
-    SwOctaveOffset(i8)
-
-}
 pub struct DefineDirective {
     define_name: String,
     define_value: String,
-}
-
-pub enum SamplePlayback {
-    Count(u32),
-    DelayBeatsCurve(u8),
-    DelayBeatsOn(String),
-    DelayBeatsRandom(f32),
-    DelayBeats(f32),
-    DelayCC(f32),
-    DelayCurve(u8),
-    DelayOn(f32),
-    DelayRandom(f32),
-    DelaySamplesOn(u32),
-    DelaySamples(u32),
-    Delay(f32),
-    Direction(String),
-    End(u32),
-    LoopCount(u32),
-    LoopCrossfade(f32),
-    LoopLengthOn(String),
-    LoopLengthCC(String),
-    LoopMode(String), // Can be no_loop, one_shot, loop_continuous, loop_sustain
-    LoopStart(u32),
-    LoopStartCC(u32),
-    LoopEnd(u32),
-    LoopTune(f32),
-    LoopType(String),
-    Md5(String),
-    OffsetMode(String),
-    Offset(u32),
-    OffsetRandom(u32),
-    OffsetCC(u32),
-    OffsetOn(u16),
-    ReverseHighCC(u8),
-    ReverseLowCC(u8),
-    SampleDynParamNOnCC(f32),
-    SampleDynParam(f32),
-    SampleFadeout(f32),
-    Sample(String),
-    StopBeats(f32),
-    SyncBeats(f32),
-    SyncOffset(f32),
-    WaveGuide(String),
-}
-
-pub enum VoiceLifecycle {
-    Group(i32),
-    NotePolyphony(u32),
-    NoteSelfmask(String),
-    OffBy(i32),
-    OffMode(String), // Can be fast or normal
-    OffCurve(i8),
-    OffShape(f32),
-    OffTime(f32),
-    Output(u16),
-    PolyphonyGroup(i32),
-    PolyphonyStealing(u32),
-    RtDead(String)
-}
-
-pub enum KeyMapping {
-    HiKey(u8),
-    HiVel(u8),
-    Key,
-    LoVel(u8),
-    LoKey(u8),
-}
-
-pub enum MidiConditions {
-    HighBend(i16),
-    HighCC(u8),
-    HighChan(u8),
-    HighHdCC(f32),
-    HighProg(u8),
-    LowBend(i16),
-    LowCC(u8),
-    LowChan(u8),
-    LowHdCC(f32),
-    SwLowKey(u8),
-    SwLast(u8),
-    SwDown(u8),
-    SwHighKey(u8),
-    SwUp(u8),
-    SwPrevious(u8),
-    SwVel(String),
-    SostenutoCC(u8),
-    SostenutoLow(f32),
-    SustainCC(u8),
-    SustainLow(f32),
-    SustainSw(String),
-    SwDefault(u8),
-    SwHighLast(u8),
-    SwLabel(String),
-    SwLowLast(u8),
-    VarNN(String),
-    VarNNCurveCC(u8),
-    VarNNMod(String),
-    VarNNOnCC(f32),
 }
